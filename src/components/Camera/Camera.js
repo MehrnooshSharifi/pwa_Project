@@ -2,13 +2,45 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
-const Camera = ({
-  videoRef,
-  capturePhoto,
-  canvasRef,
-  fileInputRef,
-  handleFileChange,
-}) => {
+const Camera = () => {
+    const videoRef = useRef(null);
+    const canvasRef = useRef(null);
+    const fileInputRef = useRef(null); 
+  // Function to handle file input change
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageData(reader.result); // Set image data to display chosen image
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Function to capture a photo at full screen resolution
+  const capturePhoto = () => {
+    if (canvasRef.current && videoRef.current) {
+      const videoWidth = videoRef.current.videoWidth;
+      const videoHeight = videoRef.current.videoHeight;
+
+      canvasRef.current.width = videoWidth;
+      canvasRef.current.height = videoHeight;
+
+      const context = canvasRef.current.getContext("2d");
+      context.drawImage(videoRef.current, 0, 0, videoWidth, videoHeight);
+
+      const capturedImageData = canvasRef.current.toDataURL("image/png");
+      setImageData(capturedImageData);
+
+      const stream = videoRef.current.srcObject;
+      const tracks = stream.getTracks();
+      tracks.forEach((track) => track.stop());
+
+      setShowCamera(false);
+    }
+  };
+
   const router = useRouter();
   return (
     <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-50">
@@ -49,7 +81,6 @@ const Camera = ({
         </Link>
       </div>
       <canvas ref={canvasRef} style={{ display: "none" }} />
-
       {/* Hidden file input for gallery selection */}
       <input
         type="file"

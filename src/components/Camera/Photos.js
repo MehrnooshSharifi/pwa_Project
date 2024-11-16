@@ -1,6 +1,29 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-const Photos = ({ imageData, sendPhotoToServer }) => {
+const Photos = () => {
+    const [imageData, setImageData] = useState(null);
+      const sendPhotoToServer = async () => {
+        if (imageData) {
+          try {
+            const response = await fetch("/api/upload", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ image: imageData }),
+            });
+
+            if (response.ok) {
+              console.log("Image successfully sent to the server!");
+              window.location.reload();
+            } else {
+              console.error("Failed to send image to the server.");
+            }
+          } catch (error) {
+            console.error("Error sending photo to server:", error);
+          }
+        }
+      };
   const router = useRouter();
   return (
     <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-50">
