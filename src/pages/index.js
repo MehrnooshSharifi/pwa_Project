@@ -4,6 +4,8 @@ import servicesType from "../../Data/servicesType";
 import Services from "@/components/Services/Services";
 import jsQR from "jsqr";
 import { useWindowSize } from "@react-hook/window-size";
+import QRCodeScanner from "@/components/QRCode/QRCodeScanner";
+import QRCodeData from "@/components/QRCode/QRCodeData";
 
 export default function Home() {
   const [showCamera, setShowCamera] = useState(false);
@@ -133,69 +135,18 @@ export default function Home() {
             />
           ))}
         </div>
-
         {/* Show camera and focus box only when `showCamera` is true */}
         {showCamera && (
-          <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
-            <video
-              ref={videoRef}
-              className="absolute inset-0 w-full h-full object-cover"
-              playsInline
-              muted // Muted is required for iOS autoplay
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
-            />
-            <canvas ref={canvasRef} className="hidden" />
-
-            {/* Focus Box */}
-            <div
-              className="absolute border-4 border-green-500"
-              style={{
-                width: "200px",
-                height: "200px",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-              }}
-            ></div>
-
-            {/* Detection Feedback */}
-            {isDetecting && (
-              <div className="absolute bottom-4 text-white bg-red-600 p-2 rounded">
-                No QR code detected
-              </div>
-            )}
-
-            <button
-              onClick={() => {
-                setShowCamera(false);
-                stopCamera();
-              }}
-              className="absolute top-4 right-4 bg-red-600 text-white p-2 rounded-full"
-            >
-              Close
-            </button>
-          </div>
+          <QRCodeScanner
+            videoRef={videoRef}
+            canvasRef={canvasRef}
+            isDetecting={isDetecting}
+            stopCamera={stopCamera}
+            setShowCamera={setShowCamera}
+          />
         )}
-
         {/* Display QR code data */}
-        {qrData && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 text-white p-6">
-            <div className="text-center">
-              <h2 className="text-2xl mb-4">Scanned QR Code Data:</h2>
-              <p>{qrData}</p>
-              <button
-                onClick={() => setQrData(null)}
-                className="mt-4 bg-green-500 p-2 rounded-lg"
-              >
-                Dismiss
-              </button>
-            </div>
-          </div>
-        )}
+        {qrData && <QRCodeData qrData={qrData} setQrData={setQrData} />}
       </div>
     </Layout>
   );
