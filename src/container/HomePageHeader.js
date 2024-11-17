@@ -11,9 +11,9 @@ const HomePageHeader = () => {
           height={50}
           alt="LOGO"
         />
-        <div className="w-[70px] h-[30px] bg-errorColor-2 text-naturalColor-2 flex items-center justify-center rounded-md">
+        <div className="w-[100px] h-[30px] bg-errorColor-2 text-naturalColor-2 text-[14px] flex items-center justify-center rounded-md whitespace-nowrap">
           {/* //TODO : if there is coockie text have to change to  */}
-          <Link href="/">ورود</Link>
+          <Link href="/">ورود / ثبت نام</Link>
         </div>
       </div>
     </div>
