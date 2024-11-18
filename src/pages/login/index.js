@@ -1,10 +1,13 @@
 import { useFormik } from "formik";
 import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { ThreeDots } from "react-loader-spinner";
 import * as Yup from "yup";
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
   const initialValues = {
     id: "",
     phoneNumber: "",
@@ -62,8 +65,9 @@ export default function LoginPage() {
         autoComplete="off"
       >
         <div className=" flex flex-col items-center gap-y-[30px] ">
-          <div>
+          <div onClick={() => router.push("/")} className="cursor-pointer">
             <Image
+              alt="logo"
               src="/assets/Images/logo/newLogo.webp"
               width={80}
               height={80}
@@ -99,7 +103,7 @@ export default function LoginPage() {
             </label>
             <br />
           </div>
-          <div className="flex flex-col w-full max-w-[300px]">
+          <div className="flex flex-col w-full max-w-[340px]">
             <label
               className={`${
                 formik.values.userTypeId == "0"
@@ -123,7 +127,7 @@ export default function LoginPage() {
               )}
             </div>
           </div>
-          <div className="flex flex-col w-full max-w-[300px]">
+          <div className="flex flex-col w-full max-w-[340px]">
             <label className="w-[120px]  h-[15px]  text-neutralColor-2 flex items-center  text-[14px] lg:text-[14px] px-2  whitespace-nowrap leading-[27.64px]  bg-naturalColor-2 absolute -mt-[10px] mx-4  font-medium">
               شماره تلفن همراه
             </label>
@@ -146,7 +150,7 @@ export default function LoginPage() {
           <button
             disabled={!formik.isValid}
             type="submit"
-            className={` rounded-[5px]  bg-errorColor-2  text-center  px-[16px] text-naturalColor-2 text-[14px] font-medium  w-full max-w-[300px] h-[48px]  lg:text-[16px]  bottom-[30px] lg:mb-2  mt-[17.51px] ${
+            className={` rounded-[5px]  bg-errorColor-2  text-center  px-[16px] text-naturalColor-2 text-[14px] font-medium  w-full max-w-[340px] h-[48px]  lg:text-[16px]  bottom-[30px] lg:mb-2  mt-[17.51px] ${
               !formik.isValid
                 ? "cursor-not-allowed opacity-30"
                 : "cursor-pointeropacity-100"
@@ -166,11 +170,24 @@ export default function LoginPage() {
                     visible={true}
                   />
                 ) : (
-                  <span className="whitespace-nowrap flex items-center justify-center">ورود | ثبت نام</span>
+                  <span className="whitespace-nowrap flex items-center justify-center">
+                    ورود | ثبت نام
+                  </span>
                 )}
               </div>
             </div>
           </button>
+          <div className="flex gap-x-[5px] text-[12px] w-full max-w-[340px]">
+            <span>ورود شما به معنای پذیرش</span>
+            <Link href="/" className="text-primaryColor-1">
+              شرایط تبادل
+            </Link>
+            <span>و</span>
+            <Link href="/" className="text-primaryColor-1">
+              قوانین حریم خصوصی
+            </Link>
+            <span>است</span>
+          </div>
         </div>
       </form>
     </div>
