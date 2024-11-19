@@ -53,7 +53,18 @@ const withPWA = require("next-pwa")({
         },
       },
     },
-    // Add more caching rules for additional dynamic routes if necessary
+    {
+      // Cache all /posts pages and sub-pages (e.g., /posts, /posts/1, /posts/2)
+      urlPattern: /^https:\/\/sharifi-pwa.liara.run\/login\/?.*/,
+      handler: "NetworkFirst",
+      options: {
+        cacheName: "login-pages",
+        expiration: {
+          maxEntries: 100,
+          maxAgeSeconds: 24 * 60 * 60, // 1 day
+        },
+      },
+    },
   ],
 });
 
