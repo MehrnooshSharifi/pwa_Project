@@ -13,7 +13,7 @@ const HomePageHeader = () => {
         />
         <div className="w-[100px] h-[40px] bg-errorColor-2 text-naturalColor-2 text-[14px] flex items-center justify-center rounded-md whitespace-nowrap">
           {/* //TODO : if there is coockie text have to change to  */}
-          <Link href="/login">ورود | ثبت نام</Link>
+          <Link href="/user/login">ورود | ثبت نام</Link>
         </div>
       </div>
     </div>
