@@ -27,6 +27,7 @@ export default function LoginPage() {
   const onSubmit = async (user, { resetForm }) => {
     console.log(user);
     setIsLoading(true);
+    router.push("/user/otp");
     // const res = await CreateUser(user);
     // if (res.isSuccess) {
     //   toast.success(res.message, {

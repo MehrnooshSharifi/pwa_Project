@@ -102,7 +102,7 @@ export default function Home() {
   // Scanning interval when camera is active
   useEffect(() => {
     if (showCamera) {
-      const interval = setInterval(scanQRCode, 100); // Scan every 100ms for faster detection
+      const interval = setInterval(scanQRCode, 50); // Scan every 100ms for faster detection
       return () => clearInterval(interval);
     }
   }, [showCamera, scanQRCode]);
