@@ -21,7 +21,14 @@ function MyApp({ Component, pageProps }) {
       });
     }
   }, []);
-
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        // Notify the user or reload the page
+        window.location.reload();
+      });
+    }
+  }, []);
   return (
     <>
       <Head>

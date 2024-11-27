@@ -2,126 +2,81 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import Layout from "@/container/Layout";
 import servicesType from "../../Data/servicesType";
 import Services from "@/components/Services/Services";
-import jsQR from "jsqr";
-import { useWindowSize } from "@react-hook/window-size";
 import QRCodeScanner from "@/components/QRCode/QRCodeScanner";
+import QrScanner from "qr-scanner"; // Import the updated qr-scanner library
 import QRCodeData from "@/components/QRCode/QRCodeData";
 
 export default function Home() {
-  const [showCamera, setShowCamera] = useState(false);
-  const [qrData, setQrData] = useState(null);
-  const [isDetecting, setIsDetecting] = useState(false); // For debugging detection
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const [width, height] = useWindowSize();
+  const [showCamera, setShowCamera] = useState(false); // Show/hide camera
+  const [qrData, setQrData] = useState(null); // Store QR code data
+  const videoRef = useRef(null); // Reference to video element
+  const canvasRef = useRef(null); // Reference for capturing the frame
+  const scannerRef = useRef(null); // QR scanner instance
 
-  // Initialize camera
+  // Start camera and scanner
   const startCamera = useCallback(async () => {
     try {
-      // iOS-friendly facing mode
-      const constraints = {
+      const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: { ideal: "environment" }, // Ideal mode for iOS
+          facingMode: { ideal: "environment" }, // Use back camera
           width: { ideal: 1280 },
           height: { ideal: 720 },
         },
-      };
+      });
 
-      // Check for capability
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert("Camera not supported on this device.");
-        return;
-      }
+      if (!stream) throw new Error("Unable to access camera");
 
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      // Attach stream to video element
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.play();
       }
+      const normalizeData = (data1) => {
+        return data1.normalize("NFC"); // Normalize Unicode text
+      };
+
+      // Create QR scanner instance
+      scannerRef.current = new QrScanner(
+        videoRef.current,
+        (result) => {
+          setQrData(normalizeData(result.data)); // Store detected QR data
+          stopCamera(); // Stop camera after detecting QR code
+          setShowCamera(false); // Hide scanner UI
+        },
+        {
+          highlightScanRegion: true, // Highlight detected QR code
+        }
+      );
+
+      // Start scanning
+      scannerRef.current.start();
     } catch (error) {
-      console.error("Error accessing the camera:", error);
+      console.error("Error starting camera:", error);
+      alert("Camera access failed. Please check your browser permissions.");
     }
   }, []);
 
-  // Stop the camera
+  // Stop camera and scanner
   const stopCamera = () => {
+    if (scannerRef.current) {
+      scannerRef.current.stop();
+      scannerRef.current.destroy();
+      scannerRef.current = null;
+    }
+
     if (videoRef.current && videoRef.current.srcObject) {
       videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
       videoRef.current.srcObject = null;
     }
   };
 
-  // Handle click for service with ID 1
+  // Handle service click
   const handleServiceClick = (serviceId) => {
     if (serviceId === 1) {
       setShowCamera(true);
       startCamera();
     }
   };
-
-  // Scan QR code function
-  const scanQRCode = useCallback(() => {
-    if (canvasRef.current && videoRef.current) {
-      const context = canvasRef.current.getContext("2d");
-      if (context) {
-        // Set canvas dimensions to match video feed
-        canvasRef.current.width = videoRef.current.videoWidth;
-        canvasRef.current.height = videoRef.current.videoHeight;
-
-        // Draw video frame to canvas
-        context.drawImage(
-          videoRef.current,
-          0,
-          0,
-          canvasRef.current.width,
-          canvasRef.current.height
-        );
-
-        // Get image data from canvas
-        const imageData = context.getImageData(
-          0,
-          0,
-          canvasRef.current.width,
-          canvasRef.current.height
-        );
-        const code = jsQR(imageData.data, imageData.width, imageData.height);
-
-        // Check if QR code is detected
-        if (code) {
-          setQrData(code.data);
-          setShowCamera(false); // Disable camera when QR code is detected
-          setIsDetecting(false);
-          stopCamera();
-        } else {
-          setIsDetecting(true); // No QR code detected in this frame
-        }
-      }
-    }
-  }, []);
-
-  // Scanning interval when camera is active
-  useEffect(() => {
-    if (showCamera) {
-      const interval = setInterval(scanQRCode, 50); // Scan every 100ms for faster detection
-      return () => clearInterval(interval);
-    }
-  }, [showCamera, scanQRCode]);
-
-  // Send QR data to server when detected
-  useEffect(() => {
-    if (qrData) {
-      fetch("/api/save-qr-data", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ qrData }),
-      })
-        .then((response) => response.json())
-        .then((data) => console.log("QR data saved:", data))
-        .catch((error) => console.error("Error saving QR data:", error));
-    }
-  }, [qrData]);
 
   return (
     <Layout>
@@ -135,17 +90,16 @@ export default function Home() {
             />
           ))}
         </div>
-        {/* Show camera and focus box only when `showCamera` is true */}
+        {/* Camera scanner */}
         {showCamera && (
           <QRCodeScanner
             videoRef={videoRef}
-            canvasRef={canvasRef}
-            isDetecting={isDetecting}
             stopCamera={stopCamera}
             setShowCamera={setShowCamera}
           />
         )}
-        {/* Display QR code data */}
+
+        {/* QR Code Data Display */}
         {qrData && <QRCodeData qrData={qrData} setQrData={setQrData} />}
       </div>
     </Layout>

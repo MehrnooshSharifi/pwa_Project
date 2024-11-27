@@ -3,7 +3,7 @@ import HomePageHeader from "./HomePageHeader";
 
 const Layout = ({ children }) => {
   return (
-    <div className=" bg-gray-200 w-full ">
+    <div className="bg-neutralColor-5 w-full ">
       <HomePageHeader />
       {children}
       <HomePageFooter />

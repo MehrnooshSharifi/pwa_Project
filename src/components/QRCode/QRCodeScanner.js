@@ -1,39 +1,39 @@
-const QRCodeScanner = ({ videoRef, canvasRef, setShowCamera, stopCamera }) => {
+import { useState } from "react";
+import { FaArrowRight } from "react-icons/fa";
+const QRCodeScanner = ({ videoRef, stopCamera, setShowCamera }) => {
+  const [acceptorCode, setAcceptorCode] = useState();
+  const acceptorHandler = (e) => {
+    console.log(e.target.value);
+    setAcceptorCode(e.target.value);
+  };
   return (
     <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
       <video
         ref={videoRef}
-        className="absolute inset-0 w-full h-full object-cover"
+        className="w-full h-full object-cover"
         playsInline
-        muted // Muted is required for iOS autoplay
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-        }}
+        muted // Required for iOS autoplay
       />
-      <canvas ref={canvasRef} className="hidden" />
-
-      {/* Focus Box */}
-      <div
-        className="absolute border-4 border-green-500"
-        style={{
-          width: "200px",
-          height: "200px",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-        }}
-      ></div>
       <button
         onClick={() => {
-          setShowCamera(false);
-          stopCamera();
+          stopCamera(); // Stop camera
+          setShowCamera(false); // Hide scanner
         }}
         className="absolute top-4 right-4 bg-red-600 text-white p-2 rounded-full"
       >
         انصراف
       </button>
+      <div className="flex justify-center items-center gap-y-[10px] rounded-md absolute  bottom-[20px] px-[3px] py-[8px] w-1/2">
+        <button className=" bg-white rounded-r-md  py-[12.5px] text-white px-[10px]">
+          <FaArrowRight className="fill-neutralColor-3" />
+        </button>
+        <input
+          type="text"
+          placeholder="ورود دستی شناسه صیادی"
+          onChange={acceptorHandler}
+          className="rounded-l-md px-[10px] py-[10px] text-[14px] outline-none border-r-2 border-r-neutralColor-3"
+        />
+      </div>
     </div>
   );
 };

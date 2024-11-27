@@ -4,6 +4,8 @@ const withPWA = require("next-pwa")({
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === "development",
+  buildExcludes: [/middleware-manifest.json$/],
+  cacheId: "my-app-v1", // Cache versioning
   runtimeCaching: [
     {
       // Cache all static assets
@@ -58,7 +60,7 @@ const withPWA = require("next-pwa")({
       urlPattern: /^https:\/\/sharifi-pwa.liara.run\/login\/?.*/,
       handler: "NetworkFirst",
       options: {
-        cacheName: "login-pages",
+        cacheName: "user-pages",
         expiration: {
           maxEntries: 100,
           maxAgeSeconds: 24 * 60 * 60, // 1 day
