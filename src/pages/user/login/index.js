@@ -1,3 +1,4 @@
+import { GetUserInfo, Login } from "@/server/Services";
 import { useFormik } from "formik";
 import Image from "next/image";
 import Link from "next/link";
@@ -5,6 +6,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { ThreeDots } from "react-loader-spinner";
 import * as Yup from "yup";
+import Cookies from "js-cookie";
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -28,29 +30,18 @@ export default function LoginPage() {
     console.log(user);
     setIsLoading(true);
     router.push("/user/otp");
-    // const res = await CreateUser(user);
-    // if (res.isSuccess) {
-    //   toast.success(res.message, {
-    //     duration: 4000,
-    //     style: {
-    //       backgroundColor: "#4CAF50",
-    //       color: "#fff",
-    //     },
-    //     className: "",
-    //     icon: <BiCheckCircle className="w-[28px] h-[28px]" />,
-    //   });
-    //   toast.success("رمز عبور از طریق پیامک ارسال گردید", {
-    //     duration: 2000,
-    //     style: {
-    //       backgroundColor: "#4CAF50",
-    //       color: "#fff",
-    //     },
-    //     icon: <BiCheckCircle className="w-[28px] h-[28px]" />,
-    //   });
-    //   setIsLoading(false);
-    //   router.push("/user/signIn");
-    //   resetForm({ user: "" });
-    // } else toast.error(res.data.message, { duration: 2000 });
+    const res = await Login(user);
+    if (res.isSuccess) {
+      console.log(res);
+      Cookies.set("Scope", res.Scope);
+      Cookies.set("phoneNumber", user.phoneNumber);
+      Cookies.set("nationalCode", user.id);
+      Cookies.set("userTypeId", user.userTypeId);
+      const userInfo = await GetUserInfo(user.id);
+      console.log(userInfo);
+    } else {
+      console.log(res.message);
+    }
   };
   const formik = useFormik({
     initialValues,

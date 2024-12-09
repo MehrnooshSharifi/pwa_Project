@@ -1,60 +1,50 @@
-import { useFormik } from "formik";
+import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
 import { ThreeDots } from "react-loader-spinner";
-import * as Yup from "yup";
+import Cookies from "js-cookie";
 export default function OTPPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [otp, setOtp] = useState("");
+  const otpInputRef = useRef(null); // Ref for the OTP input
   const router = useRouter();
-  const initialValues = {
-    otp: "",
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    alert(`Entered OTP: ${otp}`);
   };
-  const validationSchema = Yup.object({
-    otp: Yup.string().required("کد تایید را وارد کنید"),
-  });
-  const onSubmit = async (user, { resetForm }) => {
-    console.log(user);
-    setIsLoading(true);
-    // const res = await CreateUser(user);
-    // if (res.isSuccess) {
-    //   toast.success(res.message, {
-    //     duration: 4000,
-    //     style: {
-    //       backgroundColor: "#4CAF50",
-    //       color: "#fff",
-    //     },
-    //     className: "",
-    //     icon: <BiCheckCircle className="w-[28px] h-[28px]" />,
-    //   });
-    //   toast.success("رمز عبور از طریق پیامک ارسال گردید", {
-    //     duration: 2000,
-    //     style: {
-    //       backgroundColor: "#4CAF50",
-    //       color: "#fff",
-    //     },
-    //     icon: <BiCheckCircle className="w-[28px] h-[28px]" />,
-    //   });
-    //   setIsLoading(false);
-    //   router.push("/user/signIn");
-    //   resetForm({ user: "" });
-    // } else toast.error(res.data.message, { duration: 2000 });
+
+  const handleOTPInput = async () => {
+    if ("OTPCredential" in window) {
+      try {
+        const otpCredential = await navigator.credentials.get({
+          otp: { transport: ["sms"] },
+        });
+        console.log("OTP Credential:", otpCredential); // Log for debugging
+        if (otpCredential && otpCredential.code) {
+          setOtp(otpCredential.code); // Autofill the OTP
+          otpInputRef.current?.blur(); // Optionally blur the input
+        }
+      } catch (err) {
+        console.error("Error fetching OTP:", err);
+      }
+    }
   };
-  const formik = useFormik({
-    initialValues,
-    onSubmit,
-    validationSchema,
-    validateOnMount: true,
-  });
+
+  useEffect(() => {
+    otpInputRef.current?.focus(); // Focus input on mount
+    handleOTPInput(); // Start listening for OTP autofill
+  }, []);
+
   return (
     <div className="flex flex-col container mx-auto bg-neutralColor-5 max-w-[600px] overflow-y-auto h-screen">
       <form
-        onSubmit={formik.handleSubmit}
-        className="flex-col items-center  mt-[100px]"
+        onSubmit={handleSubmit}
+        className="flex-col items-center mt-[100px]"
         autoComplete="off"
       >
-        <div className=" flex flex-col items-center gap-y-[30px] ">
+        <div className="flex flex-col items-center gap-y-[30px]">
           <div onClick={() => router.push("/")} className="cursor-pointer">
             <Image
               alt="logo"
@@ -69,50 +59,43 @@ export default function OTPPage() {
           </p>
           <div className="flex flex-col w-full max-w-[340px]">
             <input
-              {...formik.getFieldProps("otp")}
-              className="focus-within:border-2 w-full focus-within:border-primaryColor-1 pr-[6px]  h-[48px]  lg:text-[16px] border border-neutralColor-3 rounded-[5px] bg-naturalColor-2 px-7 outline-none focus:bg-naturalColor-2"
+              ref={otpInputRef}
+              className="focus-within:border-2 text-neutralColor-2 w-full focus-within:border-primaryColor-1 pr-[6px] h-[48px] lg:text-[16px] border border-neutralColor-3 rounded-[5px] bg-naturalColor-2 px-7 outline-none focus:bg-naturalColor-2"
               name="otp"
               type="text"
+              onChange={(e) => setOtp(e.target.value)}
+              value={otp}
+              placeholder="Enter OTP"
+              autoFocus // Ensures field is focused
             />
-            <div className={`absolute top-[360px] lg:text-[12px] text-[10px]`}>
-              {formik.touched.otp && formik.errors.otp && (
-                <div className="flex gap-x-2 items-center ">
-                  <span className="text-red-400">{formik.errors.otp}</span>
-                </div>
-              )}
-            </div>
           </div>
           <button
-            disabled={!formik.isValid}
+            disabled={!otp}
             type="submit"
-            className={` rounded-[5px]  bg-errorColor-2  text-center  px-[16px] text-naturalColor-2 text-[14px] font-medium  w-full max-w-[340px] h-[48px]  lg:text-[16px]  bottom-[30px] lg:mb-2  mt-[17.51px] ${
-              !formik.isValid
+            className={`rounded-[5px] bg-errorColor-2 text-center px-[16px] text-naturalColor-2 text-[14px] font-medium w-full max-w-[340px] h-[48px] ${
+              !otp
                 ? "cursor-not-allowed opacity-30"
-                : "cursor-pointeropacity-100"
+                : "cursor-pointer opacity-100"
             }`}
           >
-            <div className="flex  justify-center items-center">
-              <div className="w-[40px] ">
-                {isLoading ? (
-                  <ThreeDots
-                    height="40"
-                    width="40"
-                    radius="9"
-                    color="#FAFAFA"
-                    ariaLabel="three-dots-loading"
-                    wrapperStyle={{}}
-                    wrapperClassName=""
-                    visible={true}
-                  />
-                ) : (
-                  <span className="whitespace-nowrap flex items-center justify-center">
-                    تایید
-                  </span>
-                )}
-              </div>
-            </div>
+            {isLoading ? (
+              <ThreeDots
+                height="40"
+                width="40"
+                radius="9"
+                color="#FAFAFA"
+                ariaLabel="three-dots-loading"
+              />
+            ) : (
+              "تایید"
+            )}
           </button>
-          <Link href="/user/login" className="text-[12px] font-bold text-primaryColor-1">برگشت به مرحله قبل</Link>
+          <Link
+            href="/user/login"
+            className="text-[12px] font-bold text-primaryColor-1"
+          >
+            برگشت به مرحله قبل
+          </Link>
         </div>
       </form>
     </div>
