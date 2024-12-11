@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useEffect } from "react";
 import "../styles/globals.css";
-
+import { Toaster } from "react-hot-toast";
 function MyApp({ Component, pageProps }) {
   // Register service worker on load
   useEffect(() => {
@@ -31,6 +31,16 @@ function MyApp({ Component, pageProps }) {
   }, []);
   return (
     <>
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            width: "338px",
+            height: "48px",
+            fontSize: "14px",
+          },
+        }}
+      />
       <Head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#000000" />

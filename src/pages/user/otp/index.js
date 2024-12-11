@@ -3,8 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ThreeDots } from "react-loader-spinner";
+import { useCookies } from "react-cookie";
 import Cookies from "js-cookie";
 export default function OTPPage() {
+  const [cookies] = useCookies();
   const [isLoading, setIsLoading] = useState(false);
   const [otp, setOtp] = useState("");
   const otpInputRef = useRef(null); // Ref for the OTP input
@@ -55,7 +57,7 @@ export default function OTPPage() {
           </div>
           <h2 className="text-[16px] font-bold">کد تایید را وارد کنید</h2>
           <p className="text-[14px] text-neutralColor-2">
-            کد تایید برای شماره 09102456878 پیامک شد
+            کد تایید برای شماره {cookies.phoneNumber} پیامک شد
           </p>
           <div className="flex flex-col w-full max-w-[340px]">
             <input
